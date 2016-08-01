@@ -27,7 +27,7 @@ function galaxian() {
                 player.x += player.moveDelta;
             }
         } else if (key === 32 || key === 17) {
-            // space and ctrl for shptting 
+            // space and ctrl for shooting 
             console.log("pew pew");
         }
     }, false);
