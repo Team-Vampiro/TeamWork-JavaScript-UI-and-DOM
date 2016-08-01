@@ -25,8 +25,51 @@ function galaxian() {
             "width": 5
         }
     }
+	
+	
+	var enemyImage = document.getElementById("enemy"),
+        enemiesRows = 5,
+        enemiesOnRow = 10,
+        enemies = [];
 
-    document.body.addEventListener("keydown", function (ev) {
+    function Enemy(x, y) {
+        return {
+            "x": x,
+            "y": y,
+            "sizeX": 32,
+            "sizeY": 32,
+            "isAlive": true,
+            "image": enemyImage
+        };
+    }
+
+    function CreateEnemies() {
+        var deltaPosition = 42;
+        var tempEnemies = [];
+        for (let i = 0; i < enemiesOnRow; i += 1) {
+            //let enOnRow = [];
+            for (let j = 0; j < enemiesRows; j += 1) {
+                //enOnRow += new Enemy(i * deltaPosition, j * deltaPosition);
+                tempEnemies.push(new Enemy(i * deltaPosition, j * deltaPosition));
+            }
+
+        }
+        console.log(tempEnemies);
+        return tempEnemies;
+    }
+
+    function DrawEnemies(enemies) {
+        for (let i = 0; i < enemies.length; i += 1) {
+            // for (let j = 0; j < enemiesOnRow; j += 1) {
+            //     let enemy = enemies[i][j];
+            let enemy = enemies[i];
+            ctx.drawImage(enemyImage, enemy.x, enemy.y, enemy.sizeX, enemy.sizeY);
+            //}
+        }
+    }
+	
+	
+	    document.body.addEventListener("keydown", function (ev) {
         let key = ev.keyCode;
 
         if (key === 37) {
@@ -94,6 +137,12 @@ function galaxian() {
         if (listOfBullets.length > 0) {
             moveBullets(listOfBullets);
             drawBullets(listOfBullets);
+        }
+		
+		if (enemies.length <= 0) {
+            enemies = CreateEnemies();
+        } else {
+            DrawEnemies(enemies);
         }
 
         window.requestAnimationFrame(gameLoop);
