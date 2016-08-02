@@ -22,10 +22,11 @@ function galaxian() {
         return {
             "x": x,
             "y": y - 5,
+            "sizeX": 5,
+            "sizeY": 5,
             "bulletSpeed": 5,
             "shooter": shooter,
-            "visible": true,
-            "width": 5
+            "visible": true
         }
     }
 
@@ -63,7 +64,29 @@ function galaxian() {
         }
     }, false);
 
-    function CreateEnemies() {
+    function collisionChecker(item, collection) {
+
+        let itemX2 = item.x + item.sizeX,
+            itemY2 = item.y + item.sizeY;
+
+        for (let current of collection) {
+            let currentX2 = current.x + current.sizeX,
+                currentY2 = current.y + current.sizeY;
+
+            if (((current.x <= item.x && item.x <= currentX2) ||
+                (current.x <= itemX2 && itemX2 <= currentX2)) &&
+                ((current.y <= item.y && item.y <= currentY2) ||
+                    (current.y <= itemY2 && itemY2 <= currentY2))) {
+
+                current.visible = false;
+                item.visible = false;
+                break;
+            }
+
+        }
+    }
+
+    function createEnemies() {
         var deltaPosition = 42;
         var tempEnemies = [];
         for (let i = 0; i < enemiesOnRow; i += 1) {
@@ -74,8 +97,15 @@ function galaxian() {
             }
 
         }
-        console.log(tempEnemies);
         return tempEnemies;
+    }
+
+    function moveEnemies(list) {
+        for (let enemy of list) {
+            ctx.clearRect(enemy.x, enemy.y, enemy.sizeX, enemy.sizeY);
+
+            // TODO 
+        }
     }
 
     function drawEnemies(enemies) {
@@ -89,7 +119,7 @@ function galaxian() {
 
     function moveBullets(list) {
         for (let bullet of list) {
-            ctx.clearRect(bullet.x - 3, bullet.y, bullet.width + 3, 5);
+            ctx.clearRect(bullet.x - 3, bullet.y, bullet.sizeX + 3, bullet.sizeY);
 
             if (bullet.shooter === 'player') {
                 bullet.y -= bullet.bulletSpeed;
@@ -97,8 +127,14 @@ function galaxian() {
                 bullet.y += bulletSpeed;
             }
 
+            collisionChecker(bullet, enemies);
+
             if (bullet.y < 0 || bullet.y > canvas.height) {
                 bullet.visible = false;
+            }
+            
+            if (!bullet.visible) {
+                ctx.clearRect(bullet.x - 3, bullet.y, bullet.sizeX + 3, bullet.sizeY);
             }
         }
     }
@@ -107,9 +143,9 @@ function galaxian() {
         for (let bullet of list) {
             ctx.beginPath();
             ctx.strokeStyle = "green";
-            ctx.lineWidth = bullet.width;
+            ctx.lineWidth = bullet.sizeX;
             ctx.moveTo(bullet.x, bullet.y);
-            ctx.lineTo(bullet.x, bullet.y - 5);
+            ctx.lineTo(bullet.x, bullet.y - bullet.sizeY);
             ctx.stroke();
         }
     }
@@ -137,8 +173,9 @@ function galaxian() {
         }
 
         if (enemies.length <= 0) {
-            enemies = CreateEnemies();
+            enemies = createEnemies();
         } else {
+            moveEnemies(enemies);
             removeInvisible(enemies);
             drawEnemies(enemies);
         }
