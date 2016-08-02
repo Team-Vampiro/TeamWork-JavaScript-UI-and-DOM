@@ -2,9 +2,12 @@ function galaxian() {
     var canvas = document.getElementById("canvas-game");
     var ctx = canvas.getContext("2d");
 
-    var playerImage = document.getElementById("player");
-
-    var listOfBullets = [];
+    var playerImage = document.getElementById("player"),
+        enemyImage = document.getElementById("enemy"),
+        enemiesRows = 5,
+        enemiesOnRow = 10,
+        enemies = [],
+        listOfBullets = [];
 
     var player = {
         "x": 400,
@@ -14,12 +17,6 @@ function galaxian() {
         "moveDelta": 15,
         "image": playerImage
     }
-
-    var enemyImage = document.getElementById("enemy"),
-        enemiesRows = 5,
-        enemiesOnRow = 10,
-        enemies = [];
-
 
     function Bullet(x, y, shooter) {
         return {
@@ -81,11 +78,11 @@ function galaxian() {
         return tempEnemies;
     }
 
-    function DrawEnemies(enemies) {
+    function drawEnemies(enemies) {
         for (let i = 0; i < enemies.length; i += 1) {
             let enemy = enemies[i];
             if (enemy.visible) {
-                ctx.drawImage(enemyImage, enemy.x, enemy.y, enemy.sizeX, enemy.sizeY);
+                ctx.drawImage(enemy.image, enemy.x, enemy.y, enemy.sizeX, enemy.sizeY);
             }
         }
     }
@@ -142,7 +139,8 @@ function galaxian() {
         if (enemies.length <= 0) {
             enemies = CreateEnemies();
         } else {
-            DrawEnemies(enemies);
+            removeInvisible(enemies);
+            drawEnemies(enemies);
         }
 
         window.requestAnimationFrame(gameLoop);
