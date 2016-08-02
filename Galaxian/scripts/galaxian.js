@@ -9,6 +9,8 @@ function galaxian() {
         enemies = [],
         listOfBullets = [];
 
+    var score = 0;
+
     var player = {
         "x": 400,
         "y": 400,
@@ -24,7 +26,7 @@ function galaxian() {
             "y": y - 5,
             "sizeX": 5,
             "sizeY": 5,
-            "bulletSpeed": 5,
+            "bulletSpeed": 8,
             "shooter": shooter,
             "visible": true
         }
@@ -80,6 +82,13 @@ function galaxian() {
 
                 current.visible = false;
                 item.visible = false;
+
+                if (item.shooter === 'enemy') {
+                    // player die (prolly life -- bla bla )
+                } else {
+                    score += 1;
+                    console.log(score);
+                }
                 break;
             }
 
@@ -119,20 +128,24 @@ function galaxian() {
 
     function moveBullets(list) {
         for (let bullet of list) {
-            ctx.clearRect(bullet.x - 3, bullet.y, bullet.sizeX + 3, bullet.sizeY);
+            ctx.clearRect(bullet.x - 3, bullet.y - 5, bullet.sizeX + 3, bullet.sizeY + 5);
 
             if (bullet.shooter === 'player') {
                 bullet.y -= bullet.bulletSpeed;
             } else {
                 bullet.y += bulletSpeed;
             }
-
-            collisionChecker(bullet, enemies);
+            if (bullet.shooter === 'player') {
+                collisionChecker(bullet, enemies);
+            } else {
+                // TODO check that works at all when enemies start shooting too
+                collisionChecker(bullet, player);
+            }
 
             if (bullet.y < 0 || bullet.y > canvas.height) {
                 bullet.visible = false;
             }
-            
+
             if (!bullet.visible) {
                 ctx.clearRect(bullet.x - 3, bullet.y, bullet.sizeX + 3, bullet.sizeY);
             }
