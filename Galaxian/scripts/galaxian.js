@@ -15,6 +15,12 @@ function galaxian() {
         "image": playerImage
     }
 
+    var enemyImage = document.getElementById("enemy"),
+        enemiesRows = 5,
+        enemiesOnRow = 10,
+        enemies = [];
+
+
     function Bullet(x, y, shooter) {
         return {
             "x": x,
@@ -25,12 +31,6 @@ function galaxian() {
             "width": 5
         }
     }
-	
-	
-	var enemyImage = document.getElementById("enemy"),
-        enemiesRows = 5,
-        enemiesOnRow = 10,
-        enemies = [];
 
     function Enemy(x, y) {
         return {
@@ -38,38 +38,12 @@ function galaxian() {
             "y": y,
             "sizeX": 32,
             "sizeY": 32,
-            "isAlive": true,
+            "visible": true,
             "image": enemyImage
         };
     }
 
-    function CreateEnemies() {
-        var deltaPosition = 42;
-        var tempEnemies = [];
-        for (let i = 0; i < enemiesOnRow; i += 1) {
-            //let enOnRow = [];
-            for (let j = 0; j < enemiesRows; j += 1) {
-                //enOnRow += new Enemy(i * deltaPosition, j * deltaPosition);
-                tempEnemies.push(new Enemy(i * deltaPosition, j * deltaPosition));
-            }
-
-        }
-        console.log(tempEnemies);
-        return tempEnemies;
-    }
-
-    function DrawEnemies(enemies) {
-        for (let i = 0; i < enemies.length; i += 1) {
-            // for (let j = 0; j < enemiesOnRow; j += 1) {
-            //     let enemy = enemies[i][j];
-            let enemy = enemies[i];
-            ctx.drawImage(enemyImage, enemy.x, enemy.y, enemy.sizeX, enemy.sizeY);
-            //}
-        }
-    }
-	
-	
-	    document.body.addEventListener("keydown", function (ev) {
+    document.body.addEventListener("keydown", function (ev) {
         let key = ev.keyCode;
 
         if (key === 37) {
@@ -89,9 +63,32 @@ function galaxian() {
             let bulletx = (2 * player.x + player.sizeX) / 2;
             let bullet = new Bullet(bulletx, player.y, "player");
             listOfBullets.push(bullet);
-
         }
     }, false);
+
+    function CreateEnemies() {
+        var deltaPosition = 42;
+        var tempEnemies = [];
+        for (let i = 0; i < enemiesOnRow; i += 1) {
+            //let enOnRow = [];
+            for (let j = 0; j < enemiesRows; j += 1) {
+                //enOnRow += new Enemy(i * deltaPosition, j * deltaPosition);
+                tempEnemies.push(new Enemy(i * deltaPosition, j * deltaPosition));
+            }
+
+        }
+        console.log(tempEnemies);
+        return tempEnemies;
+    }
+
+    function DrawEnemies(enemies) {
+        for (let i = 0; i < enemies.length; i += 1) {
+            let enemy = enemies[i];
+            if (enemy.visible) {
+                ctx.drawImage(enemyImage, enemy.x, enemy.y, enemy.sizeX, enemy.sizeY);
+            }
+        }
+    }
 
     function moveBullets(list) {
         for (let bullet of list) {
@@ -107,17 +104,6 @@ function galaxian() {
                 bullet.visible = false;
             }
         }
-
-        for (let i = 0; i < listOfBullets.length; i += 1) {
-            if (!listOfBullets[i]) {
-                break;
-            }
-
-            if (!listOfBullets[i].visible) {
-                listOfBullets.splice(i, 1);
-                i--;
-            }
-        }
     }
 
     function drawBullets(list) {
@@ -131,15 +117,29 @@ function galaxian() {
         }
     }
 
+    function removeInvisible(list) {
+        for (let i = 0; i < list.length; i += 1) {
+            if (!list[i]) {
+                break;
+            }
+
+            if (!list[i].visible) {
+                list.splice(i, 1);
+                i--;
+            }
+        }
+    }
+
     function gameLoop() {
         ctx.drawImage(player.image, player.x, player.y, player.sizeX, player.sizeY);
 
         if (listOfBullets.length > 0) {
             moveBullets(listOfBullets);
+            removeInvisible(listOfBullets);
             drawBullets(listOfBullets);
         }
-		
-		if (enemies.length <= 0) {
+
+        if (enemies.length <= 0) {
             enemies = CreateEnemies();
         } else {
             DrawEnemies(enemies);
