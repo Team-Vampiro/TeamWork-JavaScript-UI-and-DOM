@@ -132,12 +132,11 @@ function galaxian() {
 
             if (bullet.shooter === 'player') {
                 bullet.y -= bullet.bulletSpeed;
-            } else {
-                bullet.y += bulletSpeed;
-            }
-            if (bullet.shooter === 'player') {
+
                 collisionChecker(bullet, enemies);
             } else {
+                bullet.y += bulletSpeed;
+                
                 // TODO check that works at all when enemies start shooting too
                 collisionChecker(bullet, player);
             }
