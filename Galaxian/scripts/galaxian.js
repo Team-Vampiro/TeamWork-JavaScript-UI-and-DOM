@@ -10,7 +10,8 @@ function galaxian() {
         deltaPosition = 42,
         // 1 left-to=right, -1 right-to-left
         enemyDirection = 1,
-        listOfBullets = [];
+        listOfBullets = [],
+        maxBulletCOunt=10;
 
     var score = 0;
 
@@ -64,9 +65,11 @@ function galaxian() {
             }
         } else if (key === 32 || key === 17) {
             // space and ctrl for shooting 
-            let bulletx = (2 * player.x + player.sizeX) / 2;
-            let bullet = new Bullet(bulletx, player.y, "player");
-            listOfBullets.push(bullet);
+            if (listOfBullets.length < maxBulletCOunt) {
+                let bulletx = (2 * player.x + player.sizeX) / 2;
+                let bullet = new Bullet(bulletx, player.y, "player");
+                listOfBullets.push(bullet);
+            }
         }
     }, false);
 
