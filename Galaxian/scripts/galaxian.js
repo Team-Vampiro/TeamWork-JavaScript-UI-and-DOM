@@ -94,7 +94,6 @@ function galaxian() {
                     // player die (prolly life -- bla bla )
                 } else {
                     score += 1;
-                    console.log(score);
                 }
                 break;
             }
