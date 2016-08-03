@@ -11,7 +11,7 @@ function galaxian() {
         // 1 left-to=right, -1 right-to-left
         enemyDirection = 1,
         listOfBullets = [],
-        maxBulletCOunt=10;
+        maxBulletCOunt = 10;
 
     var score = 0;
 
@@ -197,6 +197,12 @@ function galaxian() {
         }
     }
 
+    function drawScore() {
+        ctx.clearRect(0, 475, 100, 20);
+        ctx.font = '15px Arial';
+        ctx.fillText('Score: ' + score, 0, 490);
+    }
+
     function gameLoop() {
         ctx.drawImage(player.image, player.x, player.y, player.sizeX, player.sizeY);
 
@@ -213,6 +219,8 @@ function galaxian() {
             removeInvisible(enemies);
             drawEnemies(enemies);
         }
+
+        drawScore();
 
         window.requestAnimationFrame(gameLoop);
     }
