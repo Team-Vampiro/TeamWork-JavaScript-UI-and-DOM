@@ -7,6 +7,9 @@ function galaxian() {
         enemiesRows = 5,
         enemiesOnRow = 10,
         enemies = [],
+        deltaPosition = 42,
+        // 1 left-to=right, -1 right-to-left
+        enemyDirection = 1,
         listOfBullets = [];
 
     var score = 0;
@@ -39,6 +42,7 @@ function galaxian() {
             "sizeX": 32,
             "sizeY": 32,
             "visible": true,
+            "speed": 5,
             "image": enemyImage
         };
     }
@@ -96,7 +100,6 @@ function galaxian() {
     }
 
     function createEnemies() {
-        var deltaPosition = 42;
         var tempEnemies = [];
         for (let i = 0; i < enemiesOnRow; i += 1) {
             //let enOnRow = [];
@@ -110,10 +113,26 @@ function galaxian() {
     }
 
     function moveEnemies(list) {
+        let changeDirection = false;
         for (let enemy of list) {
             ctx.clearRect(enemy.x, enemy.y, enemy.sizeX, enemy.sizeY);
 
-            // TODO 
+            enemy.x += enemyDirection * enemy.speed;
+            if ((!changeDirection) &&
+                (enemyDirection > 0) &&
+                (enemy.x + enemy.sizeX + enemy.speed >= canvas.width)) {
+                changeDirection = true;
+            }
+
+            if ((!changeDirection) &&
+                (enemyDirection < 0) &&
+                (enemy.x - enemy.speed <= 0)) {
+                changeDirection = true;
+            }
+        }
+
+        if (changeDirection) {
+            enemyDirection = -enemyDirection;
         }
     }
 
@@ -136,7 +155,7 @@ function galaxian() {
                 collisionChecker(bullet, enemies);
             } else {
                 bullet.y += bulletSpeed;
-                
+
                 // TODO check that works at all when enemies start shooting too
                 collisionChecker(bullet, player);
             }
