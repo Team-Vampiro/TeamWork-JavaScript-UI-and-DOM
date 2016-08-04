@@ -79,6 +79,10 @@ function galaxian() {
             itemY2 = item.y + item.sizeY;
 
         for (let current of collection) {
+            if (!current.visible) {
+                continue;
+            }
+
             let currentX2 = current.x + current.sizeX,
                 currentY2 = current.y + current.sizeY;
 
