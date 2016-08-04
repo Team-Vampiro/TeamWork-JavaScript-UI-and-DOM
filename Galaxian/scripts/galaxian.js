@@ -11,7 +11,8 @@ function galaxian() {
         // 1 left-to=right, -1 right-to-left
         enemyDirection = 1,
         listOfBullets = [],
-        maxBulletCOunt = 10;
+        maxBulletCOunt = 10,
+        count=0;
 
     var score = 0;
 
@@ -74,10 +75,14 @@ function galaxian() {
     }, false);
 
     function collisionChecker(item, collection) {
-
         let itemX2 = item.x + item.sizeX,
             itemY2 = item.y + item.sizeY;
-
+       if(!collection.count){
+           collection=[collection];
+       }
+        // this was to check when passing player as a target instead of [] of enemies
+        //TO DO check how to fix it with player
+        //debugger;
         for (let current of collection) {
             if (!current.visible) {
                 continue;
@@ -96,6 +101,7 @@ function galaxian() {
 
                 if (item.shooter === 'enemy') {
                     // player die (prolly life -- bla bla )
+                    console.log("Burn Burn mother fucker!!")
                 } else {
                     score += 1;
                 }
@@ -141,6 +147,24 @@ function galaxian() {
             enemyDirection = -enemyDirection;
         }
     }
+    function enimiesShoot(list){
+        let attacker=randomEnemy();
+        while(!list[attacker])
+        {
+
+            debugger;
+            attacker=randomEnemy();
+        }
+            var shooter=list[attacker];
+        let bulletx = (2 * shooter.x + shooter.sizeX) / 2;
+        let bullet = new Bullet(bulletx, shooter.y, "enemy");
+        listOfBullets.push(bullet);
+    }
+    function  randomEnemy () {
+        let randomEnemy=Math.random()*enemiesOnRow*enemiesRows;
+        randomEnemy=Math.floor(randomEnemy);
+        return randomEnemy;
+    }
 
     function drawEnemies(enemies) {
         for (let i = 0; i < enemies.length; i += 1) {
@@ -160,8 +184,7 @@ function galaxian() {
 
                 collisionChecker(bullet, enemies);
             } else {
-                bullet.y += bulletSpeed;
-
+                bullet.y += bullet.bulletSpeed;
                 // TODO check that works at all when enemies start shooting too
                 collisionChecker(bullet, player);
             }
@@ -208,6 +231,7 @@ function galaxian() {
 
     function gameLoop() {
         ctx.drawImage(player.image, player.x, player.y, player.sizeX, player.sizeY);
+        count+=1;
 
         if (listOfBullets.length > 0) {
             moveBullets(listOfBullets);
@@ -219,13 +243,16 @@ function galaxian() {
             enemies = createEnemies();
         } else {
             moveEnemies(enemies);
+            if(count%50===0) {
+                enimiesShoot(enemies);
+            }
             removeInvisible(enemies);
             drawEnemies(enemies);
         }
 
         drawScore();
 
-        window.requestAnimationFrame(gameLoop);
+            window.requestAnimationFrame(gameLoop);
     }
 
     window.requestAnimationFrame(gameLoop);
