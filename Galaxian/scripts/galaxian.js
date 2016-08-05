@@ -3,7 +3,11 @@ function galaxian() {
 
     var canvas = document.getElementById("canvas-game"),
         ctx = canvas.getContext("2d");
-
+        
+    Object.prototype.extends = function (parent) {
+        this.prototype = Object.create(parent.prototype);
+        this.prototype.constructor = this;
+    }
     var playerImage = document.getElementById("player"),
         enemyImage = document.getElementById("enemy"),
         lifeImage = document.getElementById("life"),
@@ -11,6 +15,7 @@ function galaxian() {
         enemiesOnRow = 10,
         enemies = [],
         lives = 3,
+        bonusObjects = [],
         deltaPosition = 42,
         // 1 left-to=right, -1 right-to-left
         enemyDirection = 1,
@@ -22,9 +27,28 @@ function galaxian() {
             "right": false,
             "space": false,
             "ctrl": false
-        };
+        },
+        currentLevel = 1,
+        playerBombs = 0;
 
     var score = 0;
+
+    var bonusObjectType = {
+        1: {
+            color: "#008000",
+            letter: "L",
+            type: "Live",
+            speed: currentLevel,
+            radius: 20
+        },
+        2: {
+            color: "#FF0000",
+            letter: "B",
+            type: "Bomb",
+            speed: currentLevel,
+            radius: 25
+        }
+    };
 
     var player = {
         "x": 400,
@@ -36,42 +60,67 @@ function galaxian() {
         "image": playerImage
     };
 
-    function Bullet(x, y, shooter) {
-        return {
-            "x": x,
-            "y": y - 5,
-            "sizeX": 6,
-            "sizeY": 8,
-            "bulletSpeed": 7,
-            "shooter": shooter,
-            "visible": true
-        };
+    function MovableObject(x, y, sizeX, sizeY, visible) {
+        this.x = x;
+        this.y = y;
+        this.sizeX = sizeX;
+        this.sizeY = sizeY;
+        this.visible = visible;
+        return this;
     }
 
+    function BonusObject(params, x, y) {
+        var props = bonusObjectType[params];
+        MovableObject.call(this, x, y, props.radius, props.radius, true);
+        this.letter = props.letter;
+        this.type = props.type;
+        this.color = props.color;
+        this.speed = props.speed;
+        this.radius = props.radius;
+        this.draw = function () {
+            this.clearCircle();
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI, false);
+            ctx.fillStyle = this.color;
+            ctx.fillText(this.letter, this.x, this.y)
+            ctx.fill();  
+        }
+
+        this.clearCircle = function () {
+            ctx.clearRect(this.x - this.radius - 1, this.y - this.radius - 1, this.radius * 2 + 2, this.radius * 2 + 2);
+        }
+        return this;
+    }
+
+    function Bullet(x, y, shooter) {
+        MovableObject.call(this, x, y - 5, 6, 8, true);
+        this.bulletSpeed = 7;
+        this.shooter = shooter;
+
+        return this;
+    }
+
+    Bullet.extends(MovableObject);
+
     function Enemy(x, y) {
-        return {
-            "x": x,
-            "y": y,
-            "sizeX": enemyImage.width,
-            "sizeY": enemyImage.height,
-            "visible": true,
-            "speed": 4,
-            "image": enemyImage
-        };
+        MovableObject.call(this, x, y, enemyImage.width, enemyImage.height, true);
+        this.speed = 4;
+        this.image = enemyImage;
+        return this;
     }
 
     function movePlayer(player, direction, ctx, canvasWidth) {
         if (direction === "left") {
             if (player.x - player.moveDelta >= 0) {
-                ctx.clearRect(player.x, player.y, player.sizeX, player.sizeY);
-                player.x -= player.moveDelta;
+                    ctx.clearRect(player.x, player.y, player.sizeX, player.sizeY);
+                    player.x -= player.moveDelta;
+                }
+            } else if (direction === "right") {
+                if (player.x + player.sizeX + player.moveDelta <= canvasWidth) {
+                    ctx.clearRect(player.x, player.y, player.sizeX, player.sizeY);
+                    player.x += player.moveDelta;
+                }
             }
-        } else if (direction === "right") {
-            if (player.x + player.sizeX + player.moveDelta <= canvasWidth) {
-                ctx.clearRect(player.x, player.y, player.sizeX, player.sizeY);
-                player.x += player.moveDelta;
-            }
-        }
     }
 
     function addPlayerBullet(player) {
@@ -147,6 +196,16 @@ function galaxian() {
                     (current.y <= itemY2 && itemY2 <= currentY2))) {
 
                 item.visible = false;
+                
+                if (item.type === 'Live') {
+                    lives+=1;
+                    item.clearCircle();
+                    continue;
+                } else if (item.type === 'Bomb') {
+                    playerBombs++;
+                    item.clearCircle();
+                    continue;
+                }
 
                 if (item.shooter === "enemy") {
                     lives -= 1;
@@ -252,6 +311,21 @@ function galaxian() {
         }
     }
 
+    function moveBonusObjects() {
+        for (var key in bonusObjects) {
+            if (bonusObjects.hasOwnProperty(key)) {
+                var current = bonusObjects[key];
+                current.y += current.speed;
+                if (current.y - current.radius > ctx.canvas.height) {
+                    bonusObjects.splice(key, 1);
+                    key--;
+                }
+                current.draw();
+                collisionChecker(current, [player]);
+            }
+        }
+    }
+
     function drawBullets(list) {
         for (let bullet of list) {
             ctx.beginPath();
@@ -277,7 +351,7 @@ function galaxian() {
     }
 
     function drawScoreAndLives() {
-        ctx.clearRect(10, 475, 100, 20);
+        ctx.clearRect(10, 475, ctx.canvas.width, 20);
         ctx.font = "15px Arial";
         ctx.fillStyle = "white";
         ctx.fillText("Score: " + score, 10, 490);
@@ -288,6 +362,22 @@ function galaxian() {
 
         for(let i = 2; i >= lives && lives >= 0; i -= 1) {
             ctx.clearRect(100 + i * (lifeImage.width + 10), 475, lifeImage.width, lifeImage.height);
+        }
+    }
+
+    function createBonusObject() {
+        var objectType = Math.floor(Math.random() * (3 - 1) + 1),
+            xCoords = Math.floor(Math.random() * (ctx.canvas.width - 1)) + 1;
+        var bonusObject = new BonusObject(objectType, xCoords, 230);
+        bonusObjects.push(bonusObject);
+    }
+
+    function drawBonusObject() {    
+        for (var key in bonusObjects) {
+            if (bonusObjects.hasOwnProperty(key)) {
+                var bonusObject = bonusObjects[key];
+                bonusObject.draw();            
+            }
         }
     }
 
@@ -303,11 +393,25 @@ function galaxian() {
 
         if (enemies.length <= 0) {
             enemies = createEnemies();
+            currentLevel++;
         } else {
             moveEnemies(enemies);
             if (framesCount % 50 === 0) {
                 enemiesShoot(enemies);
             }
+
+            var random = Math.floor(Math.random() * 1000 * currentLevel);
+
+            if (framesCount % random === 0) {
+                createBonusObject();
+            }
+
+            if (bonusObjects.length) {
+                moveBonusObjects(bonusObjects);
+                removeInvisible(bonusObjects);
+                drawBonusObject(bonusObjects);
+            }
+            
             removeInvisible(enemies);
             drawEnemies(enemies);
         }
