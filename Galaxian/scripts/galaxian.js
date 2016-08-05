@@ -12,7 +12,7 @@ function galaxian() {
         enemyDirection = 1,
         listOfBullets = [],
         maxBulletCOunt = 10,
-        count=0;
+        count = 0;
 
     var score = 0;
 
@@ -22,6 +22,7 @@ function galaxian() {
         "sizeX": 80,
         "sizeY": 80,
         "moveDelta": 15,
+        "visible": true,
         "image": playerImage
     }
 
@@ -77,12 +78,7 @@ function galaxian() {
     function collisionChecker(item, collection) {
         let itemX2 = item.x + item.sizeX,
             itemY2 = item.y + item.sizeY;
-       if(!collection.count){
-           collection=[collection];
-       }
-        // this was to check when passing player as a target instead of [] of enemies
-        //TO DO check how to fix it with player
-        //debugger;
+
         for (let current of collection) {
             if (!current.visible) {
                 continue;
@@ -96,13 +92,13 @@ function galaxian() {
                 ((current.y <= item.y && item.y <= currentY2) ||
                     (current.y <= itemY2 && itemY2 <= currentY2))) {
 
-                current.visible = false;
                 item.visible = false;
 
                 if (item.shooter === 'enemy') {
                     // player die (prolly life -- bla bla )
                     console.log("Burn Burn mother fucker!!")
                 } else {
+                    current.visible = false;
                     score += 1;
                 }
                 break;
@@ -147,22 +143,21 @@ function galaxian() {
             enemyDirection = -enemyDirection;
         }
     }
-    function enimiesShoot(list){
-        let attacker=randomEnemy();
-        while(!list[attacker])
-        {
+    function enimiesShoot(list) {
+        let attacker = randomEnemy();
+        while (!list[attacker]) {
 
-            debugger;
-            attacker=randomEnemy();
+            // debugger;
+            attacker = randomEnemy();
         }
-            var shooter=list[attacker];
+        var shooter = list[attacker];
         let bulletx = (2 * shooter.x + shooter.sizeX) / 2;
         let bullet = new Bullet(bulletx, shooter.y, "enemy");
         listOfBullets.push(bullet);
     }
-    function  randomEnemy () {
-        let randomEnemy=Math.random()*enemiesOnRow*enemiesRows;
-        randomEnemy=Math.floor(randomEnemy);
+    function randomEnemy() {
+        let randomEnemy = Math.random() * enemiesOnRow * enemiesRows;
+        randomEnemy = Math.floor(randomEnemy);
         return randomEnemy;
     }
 
@@ -185,8 +180,9 @@ function galaxian() {
                 collisionChecker(bullet, enemies);
             } else {
                 bullet.y += bullet.bulletSpeed;
-                // TODO check that works at all when enemies start shooting too
-                collisionChecker(bullet, player);
+                var playerArr = [];
+                playerArr.push(player);
+                collisionChecker(bullet, playerArr);
             }
 
             if (bullet.y < 0 || bullet.y > canvas.height) {
@@ -231,7 +227,7 @@ function galaxian() {
 
     function gameLoop() {
         ctx.drawImage(player.image, player.x, player.y, player.sizeX, player.sizeY);
-        count+=1;
+        count += 1;
 
         if (listOfBullets.length > 0) {
             moveBullets(listOfBullets);
@@ -243,7 +239,7 @@ function galaxian() {
             enemies = createEnemies();
         } else {
             moveEnemies(enemies);
-            if(count%50===0) {
+            if (count % 50 === 0) {
                 enimiesShoot(enemies);
             }
             removeInvisible(enemies);
@@ -252,7 +248,7 @@ function galaxian() {
 
         drawScore();
 
-            window.requestAnimationFrame(gameLoop);
+        window.requestAnimationFrame(gameLoop);
     }
 
     window.requestAnimationFrame(gameLoop);
