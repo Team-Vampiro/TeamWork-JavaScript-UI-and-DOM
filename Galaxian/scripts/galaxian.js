@@ -7,7 +7,8 @@ function galaxian() {
     Object.prototype.extends = function (parent) {
         this.prototype = Object.create(parent.prototype);
         this.prototype.constructor = this;
-    }
+    };
+
     var playerImage = document.getElementById("player"),
         enemyImage = document.getElementById("enemy"),
         lifeImage = document.getElementById("life"),
@@ -214,7 +215,9 @@ function galaxian() {
                 }
 
                 if (item.shooter === "enemy") {
-                    lives -= 1;
+                    if (lives > 0) {
+                        lives -= 1;
+                    }
                     // player die
                     if (lives <= 0) {
                         console.log("Burn Burn motherfucker!!");
@@ -369,7 +372,7 @@ function galaxian() {
             ctx.drawImage(lifeImage, 100 + i * (lifeImage.width + 10), 475, lifeImage.width, lifeImage.height);
         }
 
-        for(let i = 2; i >= lives && lives >= 0; i -= 1) {
+        for(let i = 2; i >= lives; i -= 1) {
             ctx.clearRect(100 + i * (lifeImage.width + 10), 475, lifeImage.width, lifeImage.height);
         }
     }
