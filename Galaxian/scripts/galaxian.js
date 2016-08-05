@@ -13,6 +13,7 @@ function galaxian() {
         enemyImage = document.getElementById("enemy"),
         lifeImage = document.getElementById("life"),
         asteroidImage = document.getElementById("asteroid"),
+        bombImage = document.getElementById("bomb"),
         enemiesRows = 5,
         enemiesOnRow = 10,
         enemies = [],
@@ -31,14 +32,20 @@ function galaxian() {
             "ctrl": false
         },
         currentLevel = 1,
-        playerBombs = 0;
+        playerBombs = [];
 
     var score = 0;
 
     var Constants = {
         asteroidType: 'Asteroid',
-        lifeType: 'Live' 
+        lifeType: 'Live',
+        bombType: 'Bomb' 
     };
+
+    var KeyCodes = {
+        b: 66,
+        B: 98
+    }
 
     var bonusObjectType = {
         1: {
@@ -46,12 +53,12 @@ function galaxian() {
             speed: currentLevel,
             image: lifeImage
         },
-        // 2: {
-        //     type: "Bomb",
-        //     speed: currentLevel,
-        //     image: enemyImage
-        // },
         2: {
+            type: Constants.bombType,
+            speed: currentLevel,
+            image: bombImage
+        },
+        3: {
             type: Constants.asteroidType,
             speed: currentLevel,
             image: asteroidImage
@@ -77,7 +84,7 @@ function galaxian() {
         return this;
     }
 
-    function BonusObject(params, x, y) {
+    function BonusObject(params, x, y, deltaX, deltaY) {
         var props = bonusObjectType[params];
         this.type = props.type;
         this.speed = props.speed;
@@ -89,7 +96,7 @@ function galaxian() {
         }
 
         this.clear = function () {
-            ctx.clearRect(this.x, this.y - currentLevel, this.sizeX, this.sizeY);
+            ctx.clearRect(this.x - 1, this.y - 1, this.sizeX + 1, this.sizeY);
         }
 
         return this;
@@ -133,6 +140,29 @@ function galaxian() {
             listOfBullets.push(bullet);
         }
     }
+
+    function  getRandomInt(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    document.body.addEventListener('keypress', function (ev) {
+        let key = ev.keyCode;
+
+         if (key === KeyCodes.b || key === KeyCodes.B) {
+            if(playerBombs.length) {
+                var bomb = playerBombs[0];
+                playerBombs.splice(0, 1);
+                bomb.sizeX *= 6;
+                bomb.sizeY *= 6;
+                bomb.x = player.x - bomb.sizeX;
+                bomb.y -= getRandomInt(220, 390);
+                collisionChecker(bomb, enemies, true);
+            }  
+        }
+
+    }, false);
 
     document.body.addEventListener("keydown", function (ev) {
         let key = ev.keyCode;
@@ -181,7 +211,7 @@ function galaxian() {
         }
     }, false);
 
-    function collisionChecker(item, collection) {
+    function collisionChecker(item, collection, bombing) {
         let itemX2 = item.x + item.sizeX,
             itemY2 = item.y + item.sizeY;
 
@@ -193,7 +223,7 @@ function galaxian() {
             let currentX2 = current.x + current.sizeX,
                 currentY2 = current.y + current.sizeY;
 
-            if (((current.x <= item.x && item.x <= currentX2) ||
+            if ((bombing && checkBombing(item, current)) || ((current.x <= item.x && item.x <= currentX2) ||
                 (current.x <= itemX2 && itemX2 <= currentX2)) &&
                 ((current.y <= item.y && item.y <= currentY2) ||
                     (current.y <= itemY2 && itemY2 <= currentY2))) {
@@ -204,8 +234,8 @@ function galaxian() {
                     lives+=1;
                     item.clear();
                     continue;
-                } else if (item.type === 'Bomb') {
-                    playerBombs++;
+                } else if (item.type === Constants.bombType && !bombing) {
+                    playerBombs.push(item);
                     item.clear();
                     continue;
                 } else if (item.type === Constants.asteroidType) {
@@ -226,10 +256,25 @@ function galaxian() {
                     current.visible = false;
                     score += 1;
                 }
-                break;
+
+                if(!bombing) break;
             }
 
         }
+    }
+
+    function checkBombing(bomb, current) {
+        var rightBombX = bomb.x + bomb.sizeX,
+            bottomBombY = bomb.y + bomb.sizeY,
+            rightCurrentX = current.x + current.sizeX,
+            bottomCurrentY = current.y + current.sizeY;
+            
+        if (bomb.x < rightCurrentX && rightBombX > current.x
+            && bomb.y < bottomCurrentY && bottomBombY > current.y) {
+            return true;
+        }
+
+        return false;
     }
 
     function createEnemies() {
@@ -363,13 +408,21 @@ function galaxian() {
     }
 
     function drawScoreAndLives() {
-        ctx.clearRect(10, 475, ctx.canvas.width, 20);
+        ctx.clearRect(10, 460, ctx.canvas.width, 45);
         ctx.font = "15px Arial";
         ctx.fillStyle = "white";
         ctx.fillText("Score: " + score, 10, 490);
 
+        for (var j = 0; j < playerBombs.length; j++) {
+            ctx.drawImage(bombImage, 100 + j * (bombImage.width + 15), 450, bombImage.width, bombImage.height);            
+        }
+
         for(let i = 0; i < lives; i += 1) {
             ctx.drawImage(lifeImage, 100 + i * (lifeImage.width + 10), 475, lifeImage.width, lifeImage.height);
+        }
+
+        for(let i = 2; i >= lives; i -= 1) {
+            ctx.clearRect(100 + i * (bombImage.width + 15), 450, bombImage.width, bombImage.height);
         }
 
         for(let i = 2; i >= lives; i -= 1) {
@@ -378,7 +431,7 @@ function galaxian() {
     }
 
     function createBonusObject() {
-        var objectType = Math.floor(Math.random() * (3 - 1) + 1),
+        var objectType = Math.floor(Math.random() * (4 - 1) + 1),
             xCoords = Math.floor(Math.random() * (ctx.canvas.width - 1)) + 1;
         var bonusObject = new BonusObject(objectType, xCoords, 0);
         bonusObjects.push(bonusObject);
@@ -412,7 +465,7 @@ function galaxian() {
                 enemiesShoot(enemies);
             }
 
-            var random = Math.floor(Math.random() * 1000 * currentLevel);
+            var random = Math.floor(Math.random() * 1000);
 
             if (framesCount % random === 0) {
                 createBonusObject();
