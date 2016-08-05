@@ -7,7 +7,8 @@ function galaxian() {
     Object.prototype.extends = function (parent) {
         this.prototype = Object.create(parent.prototype);
         this.prototype.constructor = this;
-    }
+    };
+
     var playerImage = document.getElementById("player"),
         enemyImage = document.getElementById("enemy"),
         lifeImage = document.getElementById("life"),
@@ -82,13 +83,14 @@ function galaxian() {
             ctx.beginPath();
             ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI, false);
             ctx.fillStyle = this.color;
-            ctx.fillText(this.letter, this.x, this.y)
+            ctx.fillText(this.letter, this.x, this.y);
             ctx.fill();  
-        }
+        };
 
         this.clearCircle = function () {
             ctx.clearRect(this.x - this.radius - 1, this.y - this.radius - 1, this.radius * 2 + 2, this.radius * 2 + 2);
-        }
+        };
+        
         return this;
     }
 

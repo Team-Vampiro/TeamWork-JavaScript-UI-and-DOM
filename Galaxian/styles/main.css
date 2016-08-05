@@ -6,16 +6,18 @@ h1 {
     color: white;
     font-size: 48px;
     font-family: Consolas, monaco, monospace;
-    text-align: center;
 }
 
 .game {
-    text-align: center;
+    position: relative;
 }
 
-    .game canvas {
+    .game #canvas-game {
         border: 1px solid white;
-        background: url("../images/bg.jpg")
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 9000;
     }
 
 img {
