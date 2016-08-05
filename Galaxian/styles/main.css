@@ -1,6 +1,23 @@
-canvas {
-    border: 1px solid black;
+body {
+    background: black;
 }
+
+h1 {
+    color: white;
+    font-size: 48px;
+    font-family: Consolas, monaco, monospace;
+    text-align: center;
+}
+
+.game {
+    text-align: center;
+}
+
+    .game canvas {
+        border: 1px solid white;
+        background: url("../images/bg.jpg")
+    }
+
 img {
     display: none;
 }

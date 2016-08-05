@@ -1,6 +1,8 @@
 function galaxian() {
-    var canvas = document.getElementById("canvas-game");
-    var ctx = canvas.getContext("2d");
+    "use strict";
+
+    var canvas = document.getElementById("canvas-game"),
+        ctx = canvas.getContext("2d");
 
     var playerImage = document.getElementById("player"),
         enemyImage = document.getElementById("enemy"),
@@ -11,67 +13,117 @@ function galaxian() {
         // 1 left-to=right, -1 right-to-left
         enemyDirection = 1,
         listOfBullets = [],
-        maxBulletCOunt = 10,
-        count = 0;
+        maxBulletCount = 10,
+        framesCount = 0,
+        keys = {
+            "left": false,
+            "right": false,
+            "space": false,
+            "ctrl": false
+        }
 
     var score = 0;
 
     var player = {
         "x": 400,
         "y": 400,
-        "sizeX": 80,
-        "sizeY": 80,
+        "sizeX": playerImage.width,
+        "sizeY": playerImage.height,
         "moveDelta": 15,
         "visible": true,
         "image": playerImage
-    }
+    };
 
     function Bullet(x, y, shooter) {
         return {
             "x": x,
             "y": y - 5,
-            "sizeX": 5,
-            "sizeY": 5,
-            "bulletSpeed": 8,
+            "sizeX": 6,
+            "sizeY": 8,
+            "bulletSpeed": 7,
             "shooter": shooter,
             "visible": true
-        }
+        };
     }
 
     function Enemy(x, y) {
         return {
             "x": x,
             "y": y,
-            "sizeX": 32,
-            "sizeY": 32,
+            "sizeX": enemyImage.width,
+            "sizeY": enemyImage.height,
             "visible": true,
-            "speed": 5,
+            "speed": 4,
             "image": enemyImage
         };
+    }
+
+    function movePlayer(player, direction, ctx, canvasWidth) {
+        if (direction === "left") {
+            if (player.x - player.moveDelta >= 0) {
+                ctx.clearRect(player.x, player.y, player.sizeX, player.sizeY);
+                player.x -= player.moveDelta;
+            }
+        } else if (direction === "right") {
+            if (player.x + player.sizeX + player.moveDelta <= canvasWidth) {
+                ctx.clearRect(player.x, player.y, player.sizeX, player.sizeY);
+                player.x += player.moveDelta;
+            }
+        }
+    }
+
+    function addPlayerBullet(player) {
+        if (listOfBullets.length < maxBulletCount) {
+            let bulletx = (2 * player.x + player.sizeX) / 2;
+            let bullet = new Bullet(bulletx, player.y, "player");
+            listOfBullets.push(bullet);
+        }
     }
 
     document.body.addEventListener("keydown", function (ev) {
         let key = ev.keyCode;
 
         if (key === 37) {
-            // left
-            if (player.x - player.moveDelta >= 0) {
-                ctx.clearRect(player.x, player.y, player.sizeX, player.sizeY);
-                player.x -= player.moveDelta;
-            }
+            keys.left = true;
         } else if (key === 39) {
-            //right
-            if (player.x + player.sizeX + player.moveDelta <= canvas.width) {
-                ctx.clearRect(player.x, player.y, player.sizeX, player.sizeY);
-                player.x += player.moveDelta;
+            keys.right = true;
+        } else if (key === 32) {
+            keys.space = true;
+        } else if (key === 17) {
+            keys.ctrl = true;
+        }
+
+        if (keys.left) {
+            movePlayer(player, "left", ctx, canvas.width);
+            if (keys.space || keys.ctrl) {
+                // space and ctrl for shooting 
+                addPlayerBullet(player);
             }
-        } else if (key === 32 || key === 17) {
+        } else if (keys.right) {
+            movePlayer(player, "right", ctx, canvas.width);
+            if (keys.space || keys.ctrl) {
+                // space and ctrl for shooting 
+                addPlayerBullet(player);
+            }
+        }
+
+       if (keys.space || keys.ctrl) {
             // space and ctrl for shooting 
-            if (listOfBullets.length < maxBulletCOunt) {
-                let bulletx = (2 * player.x + player.sizeX) / 2;
-                let bullet = new Bullet(bulletx, player.y, "player");
-                listOfBullets.push(bullet);
-            }
+            addPlayerBullet(player);
+        }
+    }, false);
+
+    document.body.addEventListener("keyup", function (ev) {
+        let key = ev.keyCode;
+
+        if (key === 37) {
+            keys.left = false;
+        } else if (key === 39) {
+            keys.right = false;
+        } else if (key === 32) {
+            keys.space = false;
+        } else if (key === 17) {
+            keys.ctrl = false;
         }
     }, false);
 
@@ -94,9 +146,9 @@ function galaxian() {
 
                 item.visible = false;
 
-                if (item.shooter === 'enemy') {
+                if (item.shooter === "enemy") {
                     // player die (prolly life -- bla bla )
-                    console.log("Burn Burn mother fucker!!")
+                    console.log("Burn Burn motherfucker!!");
                 } else {
                     current.visible = false;
                     score += 1;
@@ -172,9 +224,9 @@ function galaxian() {
 
     function moveBullets(list) {
         for (let bullet of list) {
-            ctx.clearRect(bullet.x - 3, bullet.y - 5, bullet.sizeX + 3, bullet.sizeY + 5);
+            ctx.clearRect(bullet.x - 3, bullet.y - 8, bullet.sizeX + 3, bullet.sizeY + 8);
 
-            if (bullet.shooter === 'player') {
+            if (bullet.shooter === "player") {
                 bullet.y -= bullet.bulletSpeed;
 
                 collisionChecker(bullet, enemies);
@@ -220,14 +272,15 @@ function galaxian() {
     }
 
     function drawScore() {
-        ctx.clearRect(0, 475, 100, 20);
-        ctx.font = '15px Arial';
-        ctx.fillText('Score: ' + score, 0, 490);
+        ctx.clearRect(10, 475, 100, 20);
+        ctx.font = "15px Arial";
+        ctx.fillStyle = "white";
+        ctx.fillText("Score: " + score, 10, 490);
     }
 
     function gameLoop() {
         ctx.drawImage(player.image, player.x, player.y, player.sizeX, player.sizeY);
-        count += 1;
+        framesCount += 1;
 
         if (listOfBullets.length > 0) {
             moveBullets(listOfBullets);
@@ -239,7 +292,7 @@ function galaxian() {
             enemies = createEnemies();
         } else {
             moveEnemies(enemies);
-            if (count % 50 === 0) {
+            if (framesCount % 50 === 0) {
                 enimiesShoot(enemies);
             }
             removeInvisible(enemies);
