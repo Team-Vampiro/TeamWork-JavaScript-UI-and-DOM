@@ -11,6 +11,7 @@ function galaxian() {
     var playerImage = document.getElementById("player"),
         enemyImage = document.getElementById("enemy"),
         lifeImage = document.getElementById("life"),
+        asteroidImage = document.getElementById("asteroid"),
         enemiesRows = 5,
         enemiesOnRow = 10,
         enemies = [],
@@ -33,20 +34,26 @@ function galaxian() {
 
     var score = 0;
 
+    var Constants = {
+        asteroidType: 'Asteroid',
+        lifeType: 'Live' 
+    };
+
     var bonusObjectType = {
         1: {
-            color: "#008000",
-            letter: "L",
-            type: "Live",
+            type: Constants.lifeType,
             speed: currentLevel,
-            radius: 20
+            image: lifeImage
         },
+        // 2: {
+        //     type: "Bomb",
+        //     speed: currentLevel,
+        //     image: enemyImage
+        // },
         2: {
-            color: "#FF0000",
-            letter: "B",
-            type: "Bomb",
+            type: Constants.asteroidType,
             speed: currentLevel,
-            radius: 25
+            image: asteroidImage
         }
     };
 
@@ -71,24 +78,19 @@ function galaxian() {
 
     function BonusObject(params, x, y) {
         var props = bonusObjectType[params];
-        MovableObject.call(this, x, y, props.radius, props.radius, true);
-        this.letter = props.letter;
         this.type = props.type;
-        this.color = props.color;
         this.speed = props.speed;
-        this.radius = props.radius;
+        this.image = props.image;
+        MovableObject.call(this, x, y, this.image.height, this.image.width, true);
         this.draw = function () {
-            this.clearCircle();
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI, false);
-            ctx.fillStyle = this.color;
-            ctx.fillText(this.letter, this.x, this.y)
-            ctx.fill();  
+            this.clear();
+            ctx.drawImage(this.image, this.x, this.y, this.sizeX, this.sizeY);
         }
 
-        this.clearCircle = function () {
-            ctx.clearRect(this.x - this.radius - 1, this.y - this.radius - 1, this.radius * 2 + 2, this.radius * 2 + 2);
+        this.clear = function () {
+            ctx.clearRect(this.x, this.y - currentLevel, this.sizeX, this.sizeY);
         }
+
         return this;
     }
 
@@ -197,13 +199,17 @@ function galaxian() {
 
                 item.visible = false;
                 
-                if (item.type === 'Live') {
+                if (item.type === Constants.lifeType) {
                     lives+=1;
-                    item.clearCircle();
+                    item.clear();
                     continue;
                 } else if (item.type === 'Bomb') {
                     playerBombs++;
-                    item.clearCircle();
+                    item.clear();
+                    continue;
+                } else if (item.type === Constants.asteroidType) {
+                    lives -= 1;
+                    item.clear();
                     continue;
                 }
 
@@ -259,6 +265,7 @@ function galaxian() {
             enemyDirection = -enemyDirection;
         }
     }
+
     function enemiesShoot(list) {
         let attacker = randomEnemy();
         while (!list[attacker]) {
@@ -271,6 +278,7 @@ function galaxian() {
         let bullet = new Bullet(bulletx, shooter.y, "enemy");
         listOfBullets.push(bullet);
     }
+
     function randomEnemy() {
         let randomEnemy = Math.random() * enemiesOnRow * enemiesRows;
         randomEnemy = Math.floor(randomEnemy);
@@ -304,6 +312,7 @@ function galaxian() {
             if (bullet.y < 0 || bullet.y > canvas.height) {
                 bullet.visible = false;
             }
+
 
             if (!bullet.visible) {
                 ctx.clearRect(bullet.x - 3, bullet.y, bullet.sizeX + 3, bullet.sizeY);
@@ -368,7 +377,7 @@ function galaxian() {
     function createBonusObject() {
         var objectType = Math.floor(Math.random() * (3 - 1) + 1),
             xCoords = Math.floor(Math.random() * (ctx.canvas.width - 1)) + 1;
-        var bonusObject = new BonusObject(objectType, xCoords, 230);
+        var bonusObject = new BonusObject(objectType, xCoords, 0);
         bonusObjects.push(bonusObject);
     }
 
