@@ -6,21 +6,23 @@ function galaxian() {
 
     var playerImage = document.getElementById("player"),
         enemyImage = document.getElementById("enemy"),
+        lifeImage = document.getElementById("life"),
         enemiesRows = 5,
         enemiesOnRow = 10,
         enemies = [],
+        lives = 3,
         deltaPosition = 42,
         // 1 left-to=right, -1 right-to-left
         enemyDirection = 1,
         listOfBullets = [],
-        maxBulletCount = 10,
+        maxBulletCount = 6,
         framesCount = 0,
         keys = {
             "left": false,
             "right": false,
             "space": false,
             "ctrl": false
-        }
+        };
 
     var score = 0;
 
@@ -147,8 +149,11 @@ function galaxian() {
                 item.visible = false;
 
                 if (item.shooter === "enemy") {
-                    // player die (prolly life -- bla bla )
-                    console.log("Burn Burn motherfucker!!");
+                    lives -= 1;
+                    // player die
+                    if (lives <= 0) {
+                        console.log("Burn Burn motherfucker!!");
+                    }
                 } else {
                     current.visible = false;
                     score += 1;
@@ -195,7 +200,7 @@ function galaxian() {
             enemyDirection = -enemyDirection;
         }
     }
-    function enimiesShoot(list) {
+    function enemiesShoot(list) {
         let attacker = randomEnemy();
         while (!list[attacker]) {
 
@@ -271,11 +276,19 @@ function galaxian() {
         }
     }
 
-    function drawScore() {
+    function drawScoreAndLives() {
         ctx.clearRect(10, 475, 100, 20);
         ctx.font = "15px Arial";
         ctx.fillStyle = "white";
         ctx.fillText("Score: " + score, 10, 490);
+
+        for(let i = 0; i < lives; i += 1) {
+            ctx.drawImage(lifeImage, 100 + i * (lifeImage.width + 10), 475, lifeImage.width, lifeImage.height);
+        }
+
+        for(let i = 2; i >= lives && lives >= 0; i -= 1) {
+            ctx.clearRect(100 + i * (lifeImage.width + 10), 475, lifeImage.width, lifeImage.height);
+        }
     }
 
     function gameLoop() {
@@ -293,17 +306,18 @@ function galaxian() {
         } else {
             moveEnemies(enemies);
             if (framesCount % 50 === 0) {
-                enimiesShoot(enemies);
+                enemiesShoot(enemies);
             }
             removeInvisible(enemies);
             drawEnemies(enemies);
         }
 
-        drawScore();
+        drawScoreAndLives();
+
 
         window.requestAnimationFrame(gameLoop);
     }
-
+    
     window.requestAnimationFrame(gameLoop);
 }
 
