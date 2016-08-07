@@ -490,4 +490,4 @@ function galaxian() {
     window.requestAnimationFrame(gameLoop);
 }
 
-window.onload = galaxian;
+// window.onload = galaxian;

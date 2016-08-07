@@ -16,4 +16,4 @@ function bgLoop() {
     window.requestAnimationFrame(bgLoop);
 }
 
-bgLoop();
+// bgLoop();
