@@ -3,7 +3,7 @@ function galaxian() {
 
     var canvas = document.getElementById("canvas-game"),
         ctx = canvas.getContext("2d");
-        
+
     Object.prototype.extends = function (parent) {
         this.prototype = Object.create(parent.prototype);
         this.prototype.constructor = this;
@@ -18,6 +18,7 @@ function galaxian() {
         enemiesOnRow = 10,
         enemies = [],
         lives = 3,
+        gameover = false,
         bonusObjects = [],
         deltaPosition = 42,
         // 1 left-to=right, -1 right-to-left
@@ -39,7 +40,7 @@ function galaxian() {
     var Constants = {
         asteroidType: 'Asteroid',
         lifeType: 'Live',
-        bombType: 'Bomb' 
+        bombType: 'Bomb'
     };
 
     var KeyCodes = {
@@ -122,15 +123,15 @@ function galaxian() {
     function movePlayer(player, direction, ctx, canvasWidth) {
         if (direction === "left") {
             if (player.x - player.moveDelta >= 0) {
-                    ctx.clearRect(player.x, player.y, player.sizeX, player.sizeY);
-                    player.x -= player.moveDelta;
-                }
-            } else if (direction === "right") {
-                if (player.x + player.sizeX + player.moveDelta <= canvasWidth) {
-                    ctx.clearRect(player.x, player.y, player.sizeX, player.sizeY);
-                    player.x += player.moveDelta;
-                }
+                ctx.clearRect(player.x, player.y, player.sizeX, player.sizeY);
+                player.x -= player.moveDelta;
             }
+        } else if (direction === "right") {
+            if (player.x + player.sizeX + player.moveDelta <= canvasWidth) {
+                ctx.clearRect(player.x, player.y, player.sizeX, player.sizeY);
+                player.x += player.moveDelta;
+            }
+        }
     }
 
     function addPlayerBullet(player) {
@@ -141,7 +142,7 @@ function galaxian() {
         }
     }
 
-    function  getRandomInt(min, max) {
+    function getRandomInt(min, max) {
         min = Math.ceil(min);
         max = Math.floor(max);
         return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -150,8 +151,8 @@ function galaxian() {
     document.body.addEventListener('keypress', function (ev) {
         let key = ev.keyCode;
 
-         if (key === KeyCodes.b || key === KeyCodes.B) {
-            if(playerBombs.length) {
+        if (key === KeyCodes.b || key === KeyCodes.B) {
+            if (playerBombs.length) {
                 var bomb = playerBombs[0];
                 playerBombs.splice(0, 1);
                 bomb.sizeX *= 6;
@@ -159,7 +160,7 @@ function galaxian() {
                 bomb.x = player.x - bomb.sizeX;
                 bomb.y -= getRandomInt(220, 390);
                 collisionChecker(bomb, enemies, true);
-            }  
+            }
         }
 
     }, false);
@@ -191,7 +192,7 @@ function galaxian() {
             }
         }
 
-       if (keys.space || keys.ctrl) {
+        if (keys.space || keys.ctrl) {
             // space and ctrl for shooting 
             addPlayerBullet(player);
         }
@@ -229,9 +230,9 @@ function galaxian() {
                     (current.y <= itemY2 && itemY2 <= currentY2))) {
 
                 item.visible = false;
-                
+
                 if (item.type === Constants.lifeType) {
-                    lives+=1;
+                    lives += 1;
                     item.clear();
                     continue;
                 } else if (item.type === Constants.bombType && !bombing) {
@@ -247,17 +248,16 @@ function galaxian() {
                 if (item.shooter === "enemy") {
                     if (lives > 0) {
                         lives -= 1;
-                    }
-                    // player die
-                    if (lives <= 0) {
+                    } else {
+                        gameover = true;
                         console.log("Burn Burn motherfucker!!");
                     }
                 } else {
                     current.visible = false;
-                    score += 1;
+                    score += 100;
                 }
 
-                if(!bombing) break;
+                if (!bombing) break;
             }
 
         }
@@ -268,7 +268,7 @@ function galaxian() {
             bottomBombY = bomb.y + bomb.sizeY,
             rightCurrentX = current.x + current.sizeX,
             bottomCurrentY = current.y + current.sizeY;
-            
+
         if (bomb.x < rightCurrentX && rightBombX > current.x
             && bomb.y < bottomCurrentY && bottomBombY > current.y) {
             return true;
@@ -414,18 +414,18 @@ function galaxian() {
         ctx.fillText("Score: " + score, 10, 490);
 
         for (var j = 0; j < playerBombs.length; j++) {
-            ctx.drawImage(bombImage, 100 + j * (bombImage.width + 15), 450, bombImage.width, bombImage.height);            
+            ctx.drawImage(bombImage, 100 + j * (bombImage.width + 15), 450, bombImage.width, bombImage.height);
         }
 
-        for(let i = 0; i < lives; i += 1) {
+        for (let i = 0; i < lives; i += 1) {
             ctx.drawImage(lifeImage, 100 + i * (lifeImage.width + 10), 475, lifeImage.width, lifeImage.height);
         }
 
-        for(let i = 2; i >= lives; i -= 1) {
+        for (let i = 2; i >= lives; i -= 1) {
             ctx.clearRect(100 + i * (bombImage.width + 15), 450, bombImage.width, bombImage.height);
         }
 
-        for(let i = 2; i >= lives; i -= 1) {
+        for (let i = 2; i >= lives; i -= 1) {
             ctx.clearRect(100 + i * (lifeImage.width + 10), 475, lifeImage.width, lifeImage.height);
         }
     }
@@ -437,11 +437,11 @@ function galaxian() {
         bonusObjects.push(bonusObject);
     }
 
-    function drawBonusObject() {    
+    function drawBonusObject() {
         for (var key in bonusObjects) {
             if (bonusObjects.hasOwnProperty(key)) {
                 var bonusObject = bonusObjects[key];
-                bonusObject.draw();            
+                bonusObject.draw();
             }
         }
     }
@@ -476,17 +476,22 @@ function galaxian() {
                 removeInvisible(bonusObjects);
                 drawBonusObject(bonusObjects);
             }
-            
+
             removeInvisible(enemies);
             drawEnemies(enemies);
         }
 
         drawScoreAndLives();
 
+        if (gameover) {
+            var name = window.prompt("Enter your name", "Nobody");
+            checkTopScores(name,score);
 
-        window.requestAnimationFrame(gameLoop);
+        } else {
+            window.requestAnimationFrame(gameLoop);
+        }
     }
-    
+
     window.requestAnimationFrame(gameLoop);
 }
 
