@@ -65,8 +65,8 @@ canvas {
         clear: both;
     }
 #audio button{
-    color: black;
-    display: none;
+    color: white;
+    display: block;
     background-color: transparent;
     margin-top: 10px;
     border-color: black;
