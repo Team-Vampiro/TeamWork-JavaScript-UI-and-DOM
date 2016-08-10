@@ -41,3 +41,12 @@ canvas {
         cursor: pointer;
         margin: 50px;
     }
+#audio button{
+    color: black;
+    display: none;
+    background-color: transparent;
+    margin-top: 10px;
+    border-color: black;
+    
+
+}
