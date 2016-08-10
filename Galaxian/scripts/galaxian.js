@@ -254,7 +254,7 @@ function galaxian() {
                     }
                 } else {
                     current.visible = false;
-                    score += 100;
+                    score += 1;
                 }
 
                 if (!bombing) break;
