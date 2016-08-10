@@ -1,9 +1,15 @@
+function getRandomScores(min, max) {
+    return Math.floor(Math.random() * (max - min) + min);
+}
 function getHardCoded() {
-    var arr = [];
+    var arr = [],score,min;
+    min=5000;
     for (let i = 10000; i > 0; i -= 1000) {
+      min=min-500;
+      score=getRandomScores(min,i/2);
         arr.push({
             name: 'I`m better then you',
-            score: i
+            score: score
         });
     }
 

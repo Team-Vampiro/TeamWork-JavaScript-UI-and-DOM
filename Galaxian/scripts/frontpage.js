@@ -14,6 +14,11 @@ function play() {
     }
 
     bgLoop();
+    var pausebtn=document.getElementById("pausebutton");
+    pausebtn.style.display="inline-block";
+    var audio=document.getElementById("audio1");
+    audio.autoplay=true;
+    audio.load();
     galaxian();
 }
 
@@ -23,4 +28,3 @@ btn.innerText = 'Play';
 btn.addEventListener('click', play);
 
 frontpage.appendChild(btn);
-
