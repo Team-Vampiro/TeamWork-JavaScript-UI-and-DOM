@@ -73,3 +73,15 @@ canvas {
 
 
 }
+#svg{
+  display: block;
+  width:1500px;
+  height:100px;
+margin-left: 465px;
+}
+#svgtext{
+display: inline-block;
+fill:red;
+font-size: 50px;
+
+}

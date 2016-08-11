@@ -20,6 +20,8 @@ function play() {
     audio.autoplay=true;
     audio.load();
     galaxian();
+    var svg=document.getElementById("svg");
+    svg.style.display=none;
 }
 
 var btn = document.createElement('button');
