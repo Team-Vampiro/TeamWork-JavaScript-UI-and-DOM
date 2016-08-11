@@ -1,14 +1,15 @@
 function getRandomScores(min, max) {
     return Math.floor(Math.random() * (max - min) + min);
 }
+
 function getHardCoded() {
     var arr = [],score,min;
     min=5000;
-    for (let i = 10000; i > 0; i -= 1000) {
+    for (var i = 10000; i > 0; i -= 1000) {
       min=min-500;
       score=getRandomScores(min,i/2);
         arr.push({
-            name: 'I`m better then you',
+            name: 'I`m better than you',
             score: score
         });
     }
@@ -41,8 +42,8 @@ function showTopScores(tops) {
     frag.appendChild(br);
     frag.appendChild(btn);
 
-    for (let i = 0; i < 10; i += 1) {
-        let current = li.cloneNode(true);
+    for (var i = 0; i < 10; i += 1) {
+        var current = li.cloneNode(true);
         current.innerHTML = tops[i].name;
         ol.appendChild(current);
 
@@ -54,7 +55,6 @@ function showTopScores(tops) {
     game.style.display = 'none';
     frontpage.appendChild(frag);
     frontpage.style.display = 'block';
-
 }
 
 function checkTopScores(name, score) {
@@ -77,7 +77,7 @@ function checkTopScores(name, score) {
         tops = getHardCoded();
     }
 
-    for (let i = 0, len = tops.length; i < len; i += 1) {
+    for (var i = 0, len = tops.length; i < len; i += 1) {
         if (tops[i].score < score) {
             tops.splice(i, 0, result);
             tops.pop();

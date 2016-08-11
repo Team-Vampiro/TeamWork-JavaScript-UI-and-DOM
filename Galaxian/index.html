@@ -18,16 +18,17 @@
     <img id="asteroid" src="images/asteroid.png">
     <img id="bomb" src="images/bomb.png">
     <div id="frontpage">
-      <svg id="svg">
-    <text id="svgtext" x="200" y="80">Vampiro Team Game</text>
-      </svg>
+        <svg id="svg">
+          <text id="svgtext" x="0" y="80">Vampiro Team Game</text>
+        </svg>
+        <button id="playbutton">Play</button>
     </div>
     <div id="game">
         <canvas id="canvas-bg" width="800" height="500"></canvas>
         <canvas id="canvas-game" width="800" height="500"></canvas>
     </div>
     <div id="audio">
-        <button onclick="audioPause()" id="pausebutton">Mute</button>
+        <button onclick="audioPause()" id="pausebutton"></button>
         <br><br>
         <audio id="audio1" width="240">
             <source src="./music/GalaxianMusic.mp3"> Your browser does not support HTML5 video.
@@ -36,7 +37,7 @@
     <script src="scripts/galaxian.js"></script>
     <script src="scripts/background.js"></script>
     <script src="scripts/frontpage.js"></script>
-    <script src="scripts/bacgroundAudio.js"></script>
+    <script src="scripts/backgroundAudio.js"></script>
     <script src="scripts/topScores.js"></script>
 </body>
 

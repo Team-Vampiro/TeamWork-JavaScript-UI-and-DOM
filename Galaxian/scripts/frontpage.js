@@ -8,25 +8,24 @@ function play() {
     game.style.display = 'block';
 
     var cnvs = document.getElementsByTagName('canvas');
-    for (let i = 0; i < cnvs.length; i += 1) {
-        let ctx = cnvs[i].getContext('2d');
+    for (var i = 0; i < cnvs.length; i += 1) {
+        var ctx = cnvs[i].getContext('2d');
         ctx.clearRect(0, 0, cnvs[i].width, cnvs[i].height);
     }
 
-    bgLoop();
+    window.onload = bgLoop();
+
     var pausebtn=document.getElementById("pausebutton");
     pausebtn.style.display="inline-block";
     var audio=document.getElementById("audio1");
     audio.autoplay=true;
     audio.load();
-    galaxian();
+
+    window.onload = galaxian();
+
     var svg=document.getElementById("svg");
-    svg.style.display=none;
+    svg.style.display = "none";
 }
 
-var btn = document.createElement('button');
-btn.setAttribute('id', 'playBtn');
-btn.innerText = 'Play';
+var btn = document.getElementById("playbutton");
 btn.addEventListener('click', play);
-
-frontpage.appendChild(btn);

@@ -46,7 +46,7 @@ function galaxian() {
     var KeyCodes = {
         b: 66,
         B: 98
-    }
+    };
 
     var bonusObjectType = {
         1: {
@@ -94,11 +94,11 @@ function galaxian() {
         this.draw = function () {
             this.clear();
             ctx.drawImage(this.image, this.x, this.y, this.sizeX, this.sizeY);
-        }
+        };
 
         this.clear = function () {
             ctx.clearRect(this.x - 1, this.y - 1, this.sizeX + 1, this.sizeY);
-        }
+        };
 
         return this;
     }
@@ -240,7 +240,12 @@ function galaxian() {
                     item.clear();
                     continue;
                 } else if (item.type === Constants.asteroidType) {
-                    lives -= 1;
+                    if (lives > 0) {
+                        lives -= 1;
+                    } else {
+                        gameover = true;
+                        console.log("Burn Burn motherfucker!!");
+                    }
                     item.clear();
                     continue;
                 }
@@ -269,8 +274,8 @@ function galaxian() {
             rightCurrentX = current.x + current.sizeX,
             bottomCurrentY = current.y + current.sizeY;
 
-        if (bomb.x < rightCurrentX && rightBombX > current.x
-            && bomb.y < bottomCurrentY && bottomBombY > current.y) {
+        if (bomb.x < rightCurrentX && rightBombX > current.x &&
+            bomb.y < bottomCurrentY && bottomBombY > current.y) {
             return true;
         }
 
@@ -494,5 +499,3 @@ function galaxian() {
 
     window.requestAnimationFrame(gameLoop);
 }
-
-// window.onload = galaxian;
